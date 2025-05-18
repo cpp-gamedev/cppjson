@@ -1,3 +1,9 @@
-#include <cppjson/cppjson.hpp>
+#include <cppjson/object.hpp>
+#include <print>
 
-int main() { cppjson::hello_world(); }
+int main()
+{
+	cppjson::JsonObject object{};
+	object.As<std::string>() = "Purr world!";
+	std::println("{}", object.As<std::string>());
+}
