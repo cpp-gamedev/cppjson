@@ -68,12 +68,14 @@ namespace cppjson
 			explicit ObjectProxy(JsonObject& object) : _object(std::ref(object)) {}
 
 			template <typename T>
+				requires (!std::same_as<std::remove_cvref_t<T>, JsonObject>)
 			explicit(false) operator T&()
 			{
 				return this->_object.get().As<T>();
 			}
 
 			template <typename T>
+				requires (!std::same_as<std::remove_cvref_t<T>, JsonObject>)
 			explicit(false) operator const T&() const
 			{
 				return this->_object.get().As<T>();
@@ -90,6 +92,8 @@ namespace cppjson
 			{
 				return static_cast<std::string&>(*this) = std::string{ str };
 			}
+ 
+			ObjectProxy operator[](const std::string& key);
 		private:
 			std::reference_wrapper<JsonObject> _object;
 
@@ -106,6 +110,8 @@ namespace cppjson
 			{
 				return this->_object.get().As<T>();
 			}
+
+			ConstObjectProxy operator[](const std::string& key) const;
 		private:
 			std::reference_wrapper<const JsonObject> _object;
 
@@ -127,9 +133,11 @@ namespace cppjson
 	  private:
 		std::unordered_map<std::string, JsonObject> _nodes{};
 
+		friend struct std::formatter<cppjson::JsonObject>;
 		friend struct std::formatter<cppjson::Object>;
 	};
 } // namespace cppjson
+
 
 template <>
 struct std::formatter<cppjson::JsonObject>
@@ -144,32 +152,27 @@ struct std::formatter<cppjson::JsonObject>
 		case cppjson::JsonType::Bool: return std::format_to(context.out(), "{}", object.DangerousAs<bool>());
 		case cppjson::JsonType::Number: return std::format_to(context.out(), "{}", object.DangerousAs<double>());
 		case cppjson::JsonType::String: return std::format_to(context.out(), "\"{}\"", object.DangerousAs<std::string>());
+		case cppjson::JsonType::Object:
+		{
+			const auto& node = object.DangerousAs<cppjson::Object>();
+
+			std::string built = "{ ";
+			for (const auto& [key, value] : node._nodes)
+				built += std::format("\"{}\": {}, ", key, value);
+
+			if (!node._nodes.empty()) // remove trailing commas
+			{
+				built.pop_back();
+				built.pop_back();
+				built += " }";
+			}
+			else built += "}";
+
+			return std::format_to(context.out(), "{}", built);
+		}
 		}
 
 		throw std::logic_error("Unknown type");
-	}
-};
-
-template <>
-struct std::formatter<cppjson::Object::ObjectProxy>
-{
-	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
-
-	auto format(const cppjson::Object::ObjectProxy& object, std::format_context& context) const
-	{
-		return std::format_to(context.out(), "{}", object._object.get());
-	}
-};
-
-
-template <>
-struct std::formatter<cppjson::Object::ConstObjectProxy>
-{
-	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
-
-	auto format(const cppjson::Object::ConstObjectProxy& object, std::format_context& context) const
-	{
-		return std::format_to(context.out(), "{}", object._object.get());
 	}
 };
 
@@ -193,5 +196,29 @@ struct std::formatter<cppjson::Object>
 		else built += "}";
 
 		return std::format_to(context.out(), "{}", built);
+	}
+};
+
+
+template <>
+struct std::formatter<cppjson::Object::ObjectProxy>
+{
+	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
+
+	auto format(const cppjson::Object::ObjectProxy& object, std::format_context& context) const
+	{
+		return std::format_to(context.out(), "{}", object._object.get());
+	}
+};
+
+
+template <>
+struct std::formatter<cppjson::Object::ConstObjectProxy>
+{
+	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
+
+	auto format(const cppjson::Object::ConstObjectProxy& object, std::format_context& context) const
+	{
+		return std::format_to(context.out(), "{}", object._object.get());
 	}
 };

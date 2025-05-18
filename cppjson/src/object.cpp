@@ -119,3 +119,14 @@ const std::nullptr_t& cppjson::JsonObject::As<std::nullptr_t>() const noexcept(f
 	if (this->_dataType != JsonType::Null) throw std::logic_error("Cannot convert this object to a null");
 	return DangerousAs<std::nullptr_t>();
 }
+
+cppjson::Object::ObjectProxy cppjson::Object::ObjectProxy::operator[](const std::string& key)
+{
+	return ObjectProxy{ this->_object.get().As<Object>()[key] };
+}
+
+
+cppjson::Object::ConstObjectProxy cppjson::Object::ConstObjectProxy::operator[](const std::string& key) const
+{
+	return ConstObjectProxy{ this->_object.get().As<Object>()[key] };
+}
