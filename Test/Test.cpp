@@ -3,7 +3,8 @@
 
 int main()
 {
-	cppjson::JsonObject object{};
-	object.As<std::string>() = "Purr world!";
+	cppjson::Object object{};
+	std::println("{}", object);
+	object["test"] = "Hello World";
 	std::println("{}", object);
 }

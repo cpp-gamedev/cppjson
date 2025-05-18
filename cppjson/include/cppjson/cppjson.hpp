@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 
-namespace cppjson {
-void hello_world();
+namespace cppjson
+{
+	void hello_world();
 } // namespace cppjson
