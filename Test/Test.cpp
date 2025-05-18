@@ -1,6 +1,3 @@
-﻿#include <print>
+#include <cppjson/cppjson.hpp>
 
-int main()
-{
-	std::println("Hewwo wowld");
-}
+int main() { cppjson::hello_world(); }

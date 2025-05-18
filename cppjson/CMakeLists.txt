@@ -1,21 +1,17 @@
-﻿# CMakeList.txt : CMake project for cppjson, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿add_library(cppjson)
+add_library(cppjson::cppjson ALIAS cppjson)
 
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+target_compile_features(cppjson PUBLIC
+  cxx_std_23
+)
 
-project ("cppjson")
+file(GLOB_RECURSE headers LIST_DIRECTORIES false "include/*.hpp")
+target_sources(cppjson PUBLIC FILE_SET HEADERS
+  BASE_DIRS include
+  FILES ${headers}
+)
 
-# Add source to this project's executable.
-add_executable (cppjson "cppjson.cpp" "cppjson.h")
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET cppjson PROPERTY CXX_STANDARD 23)
-endif()
-
-# TODO: Add tests and install targets if needed.
+file(GLOB_RECURSE sources LIST_DIRECTORIES false "src/*.[hc]pp")
+target_sources(cppjson PRIVATE
+  ${sources}
+)
