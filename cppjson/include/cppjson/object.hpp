@@ -44,27 +44,24 @@ namespace cppjson
 	};
 }
 
-namespace std
+template<>
+struct std::formatter<cppjson::JsonObject>
 {
-	template<>
-	struct formatter<cppjson::JsonObject>
+	constexpr auto parse(std::format_parse_context& context)
 	{
-		constexpr auto parse(std::format_parse_context& context)
+		return context.begin();
+	}
+
+	auto format(const cppjson::JsonObject& object, std::format_context& context) const
+	{
+		switch (object._dataType)
 		{
-			return context.begin();
+		case cppjson::JsonType::Null: return std::format_to(context.out(), "null");
+		case cppjson::JsonType::Bool: return std::format_to(context.out(), "{}", object.DangerousAs<bool>());
+		case cppjson::JsonType::Number: return std::format_to(context.out(), "{}", object.DangerousAs<double>());
+		case cppjson::JsonType::String: return std::format_to(context.out(), "{}", object.DangerousAs<std::string>());
 		}
 
-		auto format(const cppjson::JsonObject& object, std::format_context& context) const
-		{
-			switch (object._dataType)
-			{
-			case cppjson::JsonType::Null: return std::format_to(context.out(), "null");
-			case cppjson::JsonType::Bool: return std::format_to(context.out(), "{}", object.DangerousAs<bool>());
-			case cppjson::JsonType::Number: return std::format_to(context.out(), "{}", object.DangerousAs<double>());
-			case cppjson::JsonType::String: return std::format_to(context.out(), "{}", object.DangerousAs<std::string>());
-			}
-
-			throw std::logic_error("Unknown type");
-		}
-	};
-}
+		throw std::logic_error("Unknown type");
+	}
+};
