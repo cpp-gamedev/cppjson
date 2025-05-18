@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+/.vs
+/cppjson/.vs
+/Test/.vs
+/Test/out/build/x64-debug
+/cppjson/out/build/x64-debug
+/out/build/x64-Debug
