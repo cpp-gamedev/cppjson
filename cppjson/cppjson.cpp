@@ -1,12 +1,7 @@
-﻿// cppjson.cpp : Defines the entry point for the application.
-//
-
-#include "cppjson.h"
-
-using namespace std;
+﻿#include <print>
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+	std::println("Hewwo");
 	return 0;
 }

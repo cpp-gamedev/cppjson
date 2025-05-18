@@ -1,12 +1,6 @@
-﻿// Test.cpp : Defines the entry point for the application.
-//
-
-#include "Test.h"
-
-using namespace std;
+﻿#include <print>
 
 int main()
 {
-	cout << "Hello CMake." << endl;
-	return 0;
+	std::println("Hewwo wowld");
 }
