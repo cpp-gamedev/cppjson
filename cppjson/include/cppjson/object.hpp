@@ -68,13 +68,13 @@ namespace cppjson
 			explicit ObjectProxy(JsonObject& object) : _object(std::ref(object)) {}
 
 			template <typename T>
-			operator T&()
+			explicit(false) operator T&()
 			{
 				return this->_object.get().As<T>();
 			}
 
 			template <typename T>
-			operator const T&() const
+			explicit(false) operator const T&() const
 			{
 				return this->_object.get().As<T>();
 			}
@@ -100,7 +100,7 @@ namespace cppjson
 		public:
 			explicit ConstObjectProxy(const JsonObject& object) : _object(std::ref(object)) {}
 			template <typename T>
-			operator const T&() const
+			explicit(false) operator const T&() const
 			{
 				return this->_object.get().As<T>();
 			}

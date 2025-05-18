@@ -5,6 +5,7 @@ int main()
 {
 	cppjson::Object object{};
 	std::println("{}", object);
-	object["test"] = "Hello World";
+	object["test1"] = "Hello World";
+	object["test2"] = 123.0;
 	std::println("{}", object);
 }
