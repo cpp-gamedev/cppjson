@@ -36,3 +36,13 @@
 /Test/out/build/x64-debug
 /cppjson/out/build/x64-debug
 /out/build/x64-Debug
+
+# clangd
+/.cache
+compile_commands.json
+
+# CMake presets
+CMakeUserPresets.json
+
+# CMake build output
+/out
