@@ -2,7 +2,7 @@
 #include <new>
 #include <stdexcept>
 
-constexpr std::size_t DataStorageSize = std::max({ sizeof(std::string), sizeof(cppjson::JsonObject), sizeof(double), sizeof(bool) });
+constexpr std::size_t DataStorageSize = std::max({ sizeof(std::string), sizeof(cppjson::Object), sizeof(double), sizeof(bool) });
 
 cppjson::JsonObject::JsonObject()
 	: _dataStorage(static_cast<std::byte*>(::operator new(DataStorageSize)))
@@ -68,6 +68,19 @@ bool& cppjson::JsonObject::As<bool>() noexcept(false)
 }
 
 template<>
+cppjson::Object& cppjson::JsonObject::As<cppjson::Object>() noexcept(false)
+{
+	if (this->_dataType == JsonType::Null)
+	{
+		this->_dataType = JsonType::Object;
+		return *new(this->_dataStorage) cppjson::Object{};
+	}
+
+	if (this->_dataType != JsonType::Object) throw std::logic_error("Cannot convert this object to a bool");
+	return DangerousAs<cppjson::Object>();
+}
+
+template<>
 std::nullptr_t& cppjson::JsonObject::As<std::nullptr_t>() noexcept(false)
 {
 	if (std::exchange(this->_dataType, JsonType::Null) == JsonType::Null)
@@ -75,7 +88,6 @@ std::nullptr_t& cppjson::JsonObject::As<std::nullptr_t>() noexcept(false)
 
 	return *new(this->_dataStorage) std::nullptr_t{};
 }
-
 
 template<>
 const std::string& cppjson::JsonObject::As<std::string>() const noexcept(false)
@@ -97,6 +109,14 @@ const bool& cppjson::JsonObject::As<bool>() const noexcept(false)
 	if (this->_dataType != JsonType::Bool) throw std::logic_error("Cannot convert this object to a bool");
 	return DangerousAs<bool>();
 }
+
+template<>
+const cppjson::Object& cppjson::JsonObject::As<cppjson::Object>() const noexcept(false)
+{
+	if (this->_dataType != JsonType::Object) throw std::logic_error("Cannot convert this object to an object");
+	return DangerousAs<cppjson::Object>();
+}
+
 
 template<>
 const std::nullptr_t& cppjson::JsonObject::As<std::nullptr_t>() const noexcept(false)

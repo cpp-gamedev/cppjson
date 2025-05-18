@@ -6,6 +6,7 @@
 #include <string>
 #include <cstddef>
 #include <format>
+#include <unordered_map>
 
 namespace cppjson
 {
@@ -41,6 +42,31 @@ namespace cppjson
 		const T& DangerousAs() const noexcept { return *std::launder(reinterpret_cast<T*>(this->_dataStorage)); }
 
 		friend struct std::formatter<cppjson::JsonObject>;
+	};
+
+	class Object
+	{
+	public:
+		explicit Object() = default;
+		Object(const Object&) = default;
+		Object(Object&&) = default;	  
+		Object& operator=(const Object&) = default;
+		Object& operator=(Object&&) = default;
+		~Object() = default;
+
+		template <typename T>
+		T& operator[](const std::string& key)
+		{
+			return this->_nodes[key].As<T>();
+		}					   
+		template <typename T>
+		const T& operator[](const std::string& key) const
+		{
+			if (!this->_nodes.contains(key)) throw std::logic_error("Invalid key" + key);
+			return this->_nodes.at(key).As<T>();
+		}
+	private:
+		std::unordered_map<std::string, JsonObject> _nodes{};
 	};
 }
 
