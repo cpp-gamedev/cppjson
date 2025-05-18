@@ -92,6 +92,8 @@ namespace cppjson
 			}
 		private:
 			std::reference_wrapper<JsonObject> _object;
+
+			friend struct std::formatter<cppjson::Object::ObjectProxy>;
 		};
 
 
@@ -106,6 +108,8 @@ namespace cppjson
 			}
 		private:
 			std::reference_wrapper<const JsonObject> _object;
+
+			friend struct std::formatter<cppjson::Object::ConstObjectProxy>;
 		};
 
 		ObjectProxy operator[](const std::string& key)
@@ -143,6 +147,29 @@ struct std::formatter<cppjson::JsonObject>
 		}
 
 		throw std::logic_error("Unknown type");
+	}
+};
+
+template <>
+struct std::formatter<cppjson::Object::ObjectProxy>
+{
+	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
+
+	auto format(const cppjson::Object::ObjectProxy& object, std::format_context& context) const
+	{
+		return std::format_to(context.out(), "{}", object._object.get());
+	}
+};
+
+
+template <>
+struct std::formatter<cppjson::Object::ConstObjectProxy>
+{
+	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
+
+	auto format(const cppjson::Object::ConstObjectProxy& object, std::format_context& context) const
+	{
+		return std::format_to(context.out(), "{}", object._object.get());
 	}
 };
 

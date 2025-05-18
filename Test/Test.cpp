@@ -8,4 +8,5 @@ int main()
 	object["test1"] = "Hello World";
 	object["test2"] = 123.0;
 	std::println("{}", object);
+	std::println("object[\"test1\"] = {}", object["test1"]);
 }
