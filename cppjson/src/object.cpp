@@ -18,7 +18,7 @@ cppjson::JsonObject::JsonObject(const cppjson::JsonObject& other)
 cppjson::JsonObject::JsonObject(JsonObject&& other)
 {
      this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
-     this->_dataStorage = std::exchange(other._dataStorage, ::operator new(DataStorageSize));
+     this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
 }
 cppjson::JsonObject& cppjson::JsonObject::operator=(const cppjson::JsonObject& other)
 {
@@ -35,7 +35,7 @@ cppjson::JsonObject& cppjson::JsonObject::operator=(cppjson::JsonObject&& other)
     if (&other != this)
     {
 		this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
-		this->_dataStorage = std::exchange(other._dataStorage, ::operator new(DataStorageSize));
+		this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
 	}
     return *this;
 }
