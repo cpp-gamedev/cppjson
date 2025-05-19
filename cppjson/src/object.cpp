@@ -6,6 +6,20 @@ constexpr std::size_t DataStorageSize = std::max({sizeof(std::string), sizeof(cp
 
 cppjson::JsonObject::JsonObject() : _dataStorage(static_cast<std::byte*>(::operator new(DataStorageSize))) {}
 
+cppjson::JsonObject::JsonObject(const cppjson::JsonObject& other)
+{
+	if (other._dataStorage == nullptr) return;
+	
+	this->_dataType = other._dataType;
+	this->_dataStorage = ::operator new(DataStorageSize);
+	std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
+}
+cppjson::JsonObject::JsonObject(JsonObject&& other)
+{
+     this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
+     this->_dataStorage = std::exchange(other._dataStorage, ::operator new(DataStorageSize));
+}
+
 cppjson::JsonObject::~JsonObject()
 {
 	this->Destroy();
