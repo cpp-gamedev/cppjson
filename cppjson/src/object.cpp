@@ -1,6 +1,7 @@
 #include "cppjson/object.hpp"
 #include <new>
 #include <stdexcept>
+#include <cstdlib>
 
 constexpr std::size_t DataStorageSize = std::max({sizeof(std::string), sizeof(cppjson::Object), sizeof(double), sizeof(bool)});
 
@@ -11,7 +12,7 @@ cppjson::JsonObject::JsonObject(const cppjson::JsonObject& other)
 	if (other._dataStorage == nullptr) return;
 	
 	this->_dataType = other._dataType;
-	this->_dataStorage = ::operator new(DataStorageSize);
+	this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
 	std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
 }
 cppjson::JsonObject::JsonObject(JsonObject&& other)
@@ -24,7 +25,7 @@ cppjson::JsonObject& cppjson::JsonObject::operator=(const cppjson::JsonObject& o
     if (&other != this)
     {
 		this->_dataType = other._dataType;
-		this->_dataStorage = ::operator new(DataStorageSize);
+		this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
 	    std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
 	}
     return *this;
