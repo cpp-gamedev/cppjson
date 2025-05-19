@@ -16,7 +16,7 @@ cppjson::JsonObject::JsonObject(const cppjson::JsonObject& other)
 	this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
 	std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
 }
-cppjson::JsonObject::JsonObject(JsonObject&& other)
+cppjson::JsonObject::JsonObject(JsonObject&& other) noexcept
 {
      this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
      this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
@@ -31,7 +31,7 @@ cppjson::JsonObject& cppjson::JsonObject::operator=(const cppjson::JsonObject& o
 	}
     return *this;
 }
-cppjson::JsonObject& cppjson::JsonObject::operator=(cppjson::JsonObject&& other)
+cppjson::JsonObject& cppjson::JsonObject::operator=(cppjson::JsonObject&& other) noexcept
 {
     if (&other != this)
     {

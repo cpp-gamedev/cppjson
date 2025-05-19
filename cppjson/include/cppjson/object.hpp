@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <functional>
 #include <concepts>
+#include <vector>
 
 namespace cppjson
 {
@@ -18,7 +19,7 @@ namespace cppjson
 		Object,
 		Number,
 		Bool,
-		// TODO: Array
+		Array
 	};
 
 	class JsonObject
@@ -26,9 +27,9 @@ namespace cppjson
 	  public:
 		explicit JsonObject();
         JsonObject(const JsonObject& other);
-        JsonObject(JsonObject&& other);
+        JsonObject(JsonObject&& other) noexcept;
         JsonObject& operator=(const JsonObject& other);
-        JsonObject& operator=(JsonObject&& other);
+        JsonObject& operator=(JsonObject&& other) noexcept;
 		~JsonObject();
 
 		template <typename T>
@@ -86,9 +87,10 @@ namespace cppjson
 			}
 
 			template <typename T>
-			T& operator=(T&& assignment)
+			std::conditional_t<std::integral<T> && !std::same_as<T, bool>, void, T&> operator=(T&& assignment)
 			{
-				return static_cast<T&>(*this) = std::forward<T>(assignment);
+				if constexpr (std::integral<T> && !std::same_as<T, bool>) static_cast<double&>(*this) = static_cast<double>(assignment);
+				else return static_cast<T&>(*this) = std::forward<T>(assignment);
 			}
 
 			template <std::size_t N>
@@ -142,6 +144,35 @@ namespace cppjson
 		friend struct std::formatter<cppjson::JsonObject>;
 		friend struct std::formatter<cppjson::Object>;
 	};
+
+	class Array
+	{
+	public:
+		explicit Array() = default;
+		~Array() = default;
+
+		Object::ObjectProxy operator[]()
+		{
+			return Object::ObjectProxy{ this->_objects.emplace_back() };
+		}
+
+		Object::ObjectProxy operator[](const int index)
+		{
+			if (index >= this->_objects.size()) throw std::logic_error("Out of bound");
+			return Object::ObjectProxy{ this->_objects.at(index) };
+		}
+
+		Object::ConstObjectProxy operator[](const int index) const
+		{
+			if (index >= this->_objects.size()) throw std::logic_error("Out of bound");
+			return Object::ConstObjectProxy{ this->_objects.at(index) };
+		}
+	private:
+		std::vector<JsonObject> _objects{};
+
+		friend struct std::formatter<cppjson::JsonObject>;
+		friend struct std::formatter<cppjson::Array>;
+	};
 } // namespace cppjson
 
 
@@ -176,6 +207,24 @@ struct std::formatter<cppjson::JsonObject>
 
 			return std::format_to(context.out(), "{}", built);
 		}
+		case cppjson::JsonType::Array:
+		{
+			const auto& array = object.DangerousAs<cppjson::Array>();
+
+			std::string built = "[ ";
+			for (const auto& element : array._objects)
+				built += std::format("{}, ", element);
+
+			if (!array._objects.empty()) // remove trailing commas
+			{
+				built.pop_back();
+				built.pop_back();
+				built += " ]";
+			}
+			else built += "]";
+
+			return std::format_to(context.out(), "{}", built);
+		}
 		}
 
 		throw std::logic_error("Unknown type");
@@ -200,6 +249,29 @@ struct std::formatter<cppjson::Object>
 			built += " }";
 		}
 		else built += "}";
+
+		return std::format_to(context.out(), "{}", built);
+	}
+};
+
+template <>
+struct std::formatter<cppjson::Array>
+{
+	constexpr auto parse(std::format_parse_context& context) { return context.begin(); }
+
+	auto format(const cppjson::Array& array, std::format_context& context) const
+	{
+		std::string built = "[ ";
+		for (const auto& element : array._objects)
+			built += std::format("{}, ", element);
+
+		if (!array._objects.empty()) // remove trailing commas
+		{
+			built.pop_back();
+			built.pop_back();
+			built += " ]";
+		}
+		else built += "]";
 
 		return std::format_to(context.out(), "{}", built);
 	}
