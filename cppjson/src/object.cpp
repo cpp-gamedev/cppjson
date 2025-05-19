@@ -49,13 +49,16 @@ cppjson::JsonObject::~JsonObject()
 void cppjson::JsonObject::Destroy(void)
 {
 	using std::string;
+	using cppjson::Object;
 
 	switch (std::exchange(this->_dataType, JsonType::Null))
 	{
 	case JsonType::Null:
 	case JsonType::Number:
 	case JsonType::Bool: break;
-	case JsonType::String: DangerousAs<std::string>().~string();
+	case JsonType::String: DangerousAs<std::string>().~string(); break;
+	case JsonType::Object: DangerousAs<cppjson::Object>().~Object(); break;
+	// TODO: Array
 	}
 }
 
