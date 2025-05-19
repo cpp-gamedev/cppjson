@@ -25,6 +25,10 @@ namespace cppjson
 	{
 	  public:
 		explicit JsonObject();
+        JsonObject(const JsonObject& other);
+        JsonObject(JsonObject&& other);
+        JsonObject& operator=(const JsonObject& other);
+        JsonObject& operator=(JsonObject&& other);
 		~JsonObject();
 
 		template <typename T>

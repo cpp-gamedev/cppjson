@@ -1,11 +1,45 @@
 #include "cppjson/object.hpp"
 #include <new>
 #include <stdexcept>
+#include <cstring>
+#include <utility>
 
 constexpr std::size_t DataStorageSize = std::max({sizeof(std::string), sizeof(cppjson::Object), sizeof(double), sizeof(bool)});
 
 cppjson::JsonObject::JsonObject() : _dataStorage(static_cast<std::byte*>(::operator new(DataStorageSize))) {}
 
+cppjson::JsonObject::JsonObject(const cppjson::JsonObject& other)
+{
+	if (other._dataStorage == nullptr) return;
+	
+	this->_dataType = other._dataType;
+	this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
+	std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
+}
+cppjson::JsonObject::JsonObject(JsonObject&& other)
+{
+     this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
+     this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
+}
+cppjson::JsonObject& cppjson::JsonObject::operator=(const cppjson::JsonObject& other)
+{
+    if (&other != this)
+    {
+		this->_dataType = other._dataType;
+		this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
+	    std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
+	}
+    return *this;
+}
+cppjson::JsonObject& cppjson::JsonObject::operator=(cppjson::JsonObject&& other)
+{
+    if (&other != this)
+    {
+		this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
+		this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
+	}
+    return *this;
+}
 cppjson::JsonObject::~JsonObject()
 {
 	this->Destroy();
@@ -15,13 +49,16 @@ cppjson::JsonObject::~JsonObject()
 void cppjson::JsonObject::Destroy(void)
 {
 	using std::string;
+	using cppjson::Object;
 
 	switch (std::exchange(this->_dataType, JsonType::Null))
 	{
 	case JsonType::Null:
 	case JsonType::Number:
 	case JsonType::Bool: break;
-	case JsonType::String: DangerousAs<std::string>().~string();
+	case JsonType::String: DangerousAs<std::string>().~string(); break;
+	case JsonType::Object: DangerousAs<cppjson::Object>().~Object(); break;
+	// TODO: Array
 	}
 }
 
