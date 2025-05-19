@@ -115,10 +115,24 @@ cppjson::Object& cppjson::JsonObject::As<cppjson::Object>() noexcept(false)
 }
 
 template <>
+cppjson::Array& cppjson::JsonObject::As<cppjson::Array>() noexcept(false)
+{
+	if (this->_dataType == JsonType::Null)
+	{
+		this->_dataType = JsonType::Array;
+		return *new (this->_dataStorage) cppjson::Array{};
+	}
+
+	if (this->_dataType != JsonType::Array) throw std::logic_error("Cannot convert this object to an array");
+	return DangerousAs<cppjson::Array>();
+}
+
+template <>
 std::nullptr_t& cppjson::JsonObject::As<std::nullptr_t>() noexcept(false)
 {
 	if (std::exchange(this->_dataType, JsonType::Null) == JsonType::Null) return DangerousAs<std::nullptr_t>();
 
+	Destroy();
 	return *new (this->_dataStorage) std::nullptr_t{};
 }
 
@@ -148,6 +162,13 @@ const cppjson::Object& cppjson::JsonObject::As<cppjson::Object>() const noexcept
 {
 	if (this->_dataType != JsonType::Object) throw std::logic_error("Cannot convert this object to an object");
 	return DangerousAs<cppjson::Object>();
+}
+
+template <>
+const cppjson::Array& cppjson::JsonObject::As<cppjson::Array>() const noexcept(false)
+{
+	if (this->_dataType != JsonType::Array) throw std::logic_error("Cannot convert this object to an Array");
+	return DangerousAs<cppjson::Array>();
 }
 
 template <>
