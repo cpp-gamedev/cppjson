@@ -19,7 +19,25 @@ cppjson::JsonObject::JsonObject(JsonObject&& other)
      this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
      this->_dataStorage = std::exchange(other._dataStorage, ::operator new(DataStorageSize));
 }
-
+cppjson::JsonObject& cppjson::JsonObject::operator=(const cppjson::JsonObject& other)
+{
+    if (&other != this)
+    {
+		this->_dataType = other._dataType;
+		this->_dataStorage = ::operator new(DataStorageSize);
+	    std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
+	}
+    return *this;
+}
+cppjson::JsonObject& cppjson::JsonObject::operator=(cppjson::JsonObject&& other)
+{
+    if (&other != this)
+    {
+		this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
+		this->_dataStorage = std::exchange(other._dataStorage, ::operator new(DataStorageSize));
+	}
+    return *this;
+}
 cppjson::JsonObject::~JsonObject()
 {
 	this->Destroy();
