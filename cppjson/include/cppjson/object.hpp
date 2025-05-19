@@ -98,7 +98,7 @@ namespace cppjson
 			}
  
 			ObjectProxy operator[](const std::string& key);
-            tempalte <std::size_t N>
+            template <std::size_t N>
             ObjectProxy operator[](const char(&key)[N]) { return (*this)[std::string{key}]; }
 		private:
 			std::reference_wrapper<JsonObject> _object;
