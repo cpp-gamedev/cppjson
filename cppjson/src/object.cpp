@@ -1,7 +1,8 @@
 #include "cppjson/object.hpp"
 #include <new>
 #include <stdexcept>
-#include <cstdlib>
+#include <cstring>
+#include <utility>
 
 constexpr std::size_t DataStorageSize = std::max({sizeof(std::string), sizeof(cppjson::Object), sizeof(double), sizeof(bool)});
 
