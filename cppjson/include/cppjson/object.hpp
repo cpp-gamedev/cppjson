@@ -156,6 +156,13 @@ namespace cppjson
 			return Object::ObjectProxy{ this->_objects.emplace_back() };
 		}
 
+Object::ObjectProxy EmplaceBack(const auto& object = nullptr)
+		{
+		 if constexpr(std::same_as<decltype(object), std::nullptr_t>)
+			return Object::ObjectProxy{ this->_objects.emplace_back() };
+        else return Object::ObjectProxy{ this->_objects.emplace_back(object) };
+		}
+
 		Object::ObjectProxy operator[](const int index)
 		{
 			if (index >= this->_objects.size()) throw std::logic_error("Out of bound");
