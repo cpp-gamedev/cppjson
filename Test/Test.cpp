@@ -1,4 +1,4 @@
-#include <cppjson/object.hpp>
+#include <cppjson/cppjson.hpp>
 #include <print>
 
 int main()
@@ -13,6 +13,7 @@ int main()
 	array[] = 6.0;
 	array[0] = 1;
 	array[] = "Stirng";
+	array.EmplaceBack(nullptr);
 	try
 	{
 		array[2] = true;
