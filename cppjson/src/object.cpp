@@ -1,7 +1,7 @@
 #include "cppjson/object.hpp"
+#include <cstring>
 #include <new>
 #include <stdexcept>
-#include <cstring>
 #include <utility>
 
 constexpr std::size_t DataStorageSize = std::max({sizeof(std::string), sizeof(cppjson::Object), sizeof(double), sizeof(bool)});
@@ -11,34 +11,34 @@ cppjson::JsonObject::JsonObject() : _dataStorage(static_cast<std::byte*>(::opera
 cppjson::JsonObject::JsonObject(const cppjson::JsonObject& other)
 {
 	if (other._dataStorage == nullptr) return;
-	
+
 	this->_dataType = other._dataType;
 	this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
 	std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
 }
 cppjson::JsonObject::JsonObject(JsonObject&& other) noexcept
 {
-     this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
-     this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
+	this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
+	this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
 }
 cppjson::JsonObject& cppjson::JsonObject::operator=(const cppjson::JsonObject& other)
 {
-    if (&other != this)
-    {
+	if (&other != this)
+	{
 		this->_dataType = other._dataType;
 		this->_dataStorage = static_cast<std::byte*>(::operator new(DataStorageSize));
-	    std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
+		std::memcpy(this->_dataStorage, other._dataStorage, DataStorageSize);
 	}
-    return *this;
+	return *this;
 }
 cppjson::JsonObject& cppjson::JsonObject::operator=(cppjson::JsonObject&& other) noexcept
 {
-    if (&other != this)
-    {
+	if (&other != this)
+	{
 		this->_dataType = std::exchange(other._dataType, cppjson::JsonType::Null);
 		this->_dataStorage = std::exchange(other._dataStorage, static_cast<std::byte*>(::operator new(DataStorageSize)));
 	}
-    return *this;
+	return *this;
 }
 cppjson::JsonObject::~JsonObject()
 {
@@ -48,9 +48,9 @@ cppjson::JsonObject::~JsonObject()
 
 void cppjson::JsonObject::Destroy(void)
 {
-	using std::string;
-	using cppjson::Object;
 	using cppjson::Array;
+	using cppjson::Object;
+	using std::string;
 
 	switch (std::exchange(this->_dataType, JsonType::Null))
 	{
@@ -179,13 +179,9 @@ const std::nullptr_t& cppjson::JsonObject::As<std::nullptr_t>() const noexcept(f
 	return DangerousAs<std::nullptr_t>();
 }
 
-cppjson::Object::ObjectProxy cppjson::Object::ObjectProxy::operator[](const std::string& key)
-{
-	return ObjectProxy{ this->_object.get().As<Object>()[key] };
-}
-
+cppjson::Object::ObjectProxy cppjson::Object::ObjectProxy::operator[](const std::string& key) { return ObjectProxy{this->_object.get().As<Object>()[key]}; }
 
 cppjson::Object::ConstObjectProxy cppjson::Object::ConstObjectProxy::operator[](const std::string& key) const
 {
-	return ConstObjectProxy{ this->_object.get().As<Object>()[key] };
+	return ConstObjectProxy{this->_object.get().As<Object>()[key]};
 }

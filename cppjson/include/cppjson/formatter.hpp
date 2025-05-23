@@ -1,5 +1,5 @@
-#include "object.hpp"
 #include <format>
+#include "object.hpp"
 
 template <>
 struct std::formatter<cppjson::JsonObject>
