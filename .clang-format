@@ -2,7 +2,7 @@
 Language: Cpp
 BasedOnStyle: LLVM
 AlwaysBreakTemplateDeclarations: Yes
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman
 ColumnLimit: 160
 SpaceAfterTemplateKeyword: true
 Standard: c++20
@@ -29,3 +29,4 @@ IncludeCategories:
       Priority: 30
 PointerAlignment: Left
 QualifierAlignment: Left
+NamespaceIndentation: All

@@ -1,5 +1,4 @@
-﻿#pragma once
+#pragma once
 
-namespace cppjson {
-void hello_world();
-} // namespace cppjson
+#include "formatter.hpp"
+#include "object.hpp"
