@@ -7,7 +7,7 @@ int main()
 	object["test1"] = "Hello World";
 	object["test2"] = 123.0;
 
-	if (static_cast<std::string>(object["test1"]) != "Hello World" || (double)object["test2"] != 123.0)
+	if (static_cast<const std::string&>(object["test1"]) != "Hello World" || (double)object["test2"] != 123.0)
 	{
 		std::println("TestPrimitives failed");
 		return 1;
