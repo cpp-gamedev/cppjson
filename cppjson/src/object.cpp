@@ -46,6 +46,21 @@ cppjson::JsonObject::~JsonObject()
 	::operator delete(this->_dataStorage);
 }
 
+bool cppjson::JsonObject::operator==(const JsonObject& other) const
+{
+	if (other._dataType != this->_dataType) return false;
+	switch (this->_dataType)
+	{
+	case JsonType::Null: return true;
+	case JsonType::Number: return this->DangerousAs<double>() == other.DangerousAs<double>();
+	case JsonType::Bool: return this->DangerousAs<bool>() == other.DangerousAs<bool>();
+	case JsonType::String: return this->DangerousAs<std::string>() == other.DangerousAs<std::string>();
+	case JsonType::Object: return this->DangerousAs<cppjson::Object>() == other.DangerousAs<cppjson::Object>();
+	case JsonType::Array: return this->DangerousAs<cppjson::Array>() == other.DangerousAs<cppjson::Array>();
+	default: return false;
+	}
+}
+
 void cppjson::JsonObject::Destroy(void)
 {
 	using cppjson::Array;
@@ -184,4 +199,15 @@ cppjson::Object::ObjectProxy cppjson::Object::ObjectProxy::operator[](const std:
 cppjson::Object::ConstObjectProxy cppjson::Object::ConstObjectProxy::operator[](const std::string& key) const
 {
 	return ConstObjectProxy{this->_object.get().As<Object>()[key]};
+}
+
+bool cppjson::Object::operator==(const Object& other) const
+{
+	if (this->_nodes.size() != other._nodes.size()) return false;
+	for (const auto& [key, value] : this->_nodes)
+	{
+		if (!other._nodes.contains(key)) return false;
+		if (!(value == other._nodes.at(key))) return false;
+	}
+	return true;
 }
