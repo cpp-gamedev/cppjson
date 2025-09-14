@@ -67,6 +67,8 @@ namespace cppjson
 		Object& operator=(Object&&) = default;
 		~Object() = default;
 
+		[[nodiscard]] bool IsEmpty() const noexcept { return this->_nodes.empty(); }
+
 		class ObjectProxy
 		{
 		  public:
@@ -76,14 +78,14 @@ namespace cppjson
 				requires(!std::same_as<std::remove_cvref_t<T>, JsonObject>)
 			explicit(false) operator T&()
 			{
-				return this->_object.get().As<T>();
+				return this->_object.get().As<std::remove_cvref_t<T>>();
 			}
 
 			template <typename T>
 				requires(!std::same_as<std::remove_cvref_t<T>, JsonObject>)
 			explicit(false) operator const T&() const
 			{
-				return this->_object.get().As<T>();
+				return this->_object.get().As<const std::remove_cvref_t<T>>();
 			}
 
 			template <typename T>
