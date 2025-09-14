@@ -46,3 +46,4 @@ CMakeUserPresets.json
 
 # CMake build output
 /out
+/TestResults
